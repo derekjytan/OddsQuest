@@ -93,4 +93,8 @@ instance/
 htmlcov/
 
 # Jupyter Notebook
+<<<<<<< HEAD
 *.ipynb
+=======
+*.ipynb
+>>>>>>> 53fadd1f3533ce8be6becc8d134d739cb3323424
