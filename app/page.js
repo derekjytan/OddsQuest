@@ -19,10 +19,11 @@ export default function Home() {
   }, []);
 
   if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
-  if (!oddsData) return <div className="p-4">Loading...</div>;
+  if (!oddsData)
+    return <div className="flex justify-center p-4">Loading...</div>;
 
   return (
-    <div className="p-4 font-mono">
+    <div className="max-w-4xl mx-auto p-4 font-mono">
       {Object.entries(oddsData.odds_data).map(([gameKey, game]) => (
         <div key={gameKey} className="mb-8 border p-4 rounded">
           <h2 className="text-lg font-bold mb-2">
