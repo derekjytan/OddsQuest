@@ -6,7 +6,6 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // console.log("Fetching NBA odds data...");
     fetch("/api/basketball_nba/odds")
       .then((res) => res.json())
       .then((data) => {
@@ -18,7 +17,10 @@ export default function Home() {
       .catch((err) => setError(err.message));
   }, []);
 
-  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+  if (error)
+    return (
+      <div className="flex justify-center p-4 text-red-500">Error: {error}</div>
+    );
   if (!oddsData)
     return <div className="flex justify-center p-4">Loading...</div>;
 
@@ -32,16 +34,52 @@ export default function Home() {
           <p className="mb-2">Commence Time: {game.commence_time}</p>
 
           <div className="mb-4">
-            <h3 className="font-bold">Odds:</h3>
+            <h3 className="font-bold">Odds & Arbitrage Opportunities:</h3>
             {game.bookmakers.map((bookmaker) => (
-              <div key={bookmaker.name} className="ml-4 mb-2">
+              <div
+                key={bookmaker.name}
+                className="ml-4 mb-4 p-3 bg-gray-50 rounded"
+              >
                 <h4 className="font-bold">{bookmaker.name}:</h4>
-                <p className="ml-4">Last Update: {bookmaker.last_update}</p>
-                {Object.entries(bookmaker.odds).map(([team, odds]) => (
-                  <p key={team} className="ml-4">
-                    {team}: {odds}
+                <p className="ml-4 text-sm">
+                  Last Update: {bookmaker.last_update}
+                </p>
+
+                <div className="ml-4 mt-2">
+                  {Object.entries(bookmaker.odds).map(([team, odd]) => (
+                    <div
+                      key={team}
+                      className="flex justify-between items-center"
+                    >
+                      <span>
+                        {team}: {odd}
+                      </span>
+                      <span className="text-gray-600">
+                        Bet: $
+                        {bookmaker.arbitrage.betAmountsByTeam[team].toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-2 ml-4">
+                  <p
+                    className={`font-bold ${
+                      bookmaker.arbitrage.arbitragePercentage > 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    Arbitrage:{" "}
+                    {bookmaker.arbitrage.arbitragePercentage.toFixed(2)}%
+                    {bookmaker.arbitrage.arbitragePercentage > 0 && (
+                      <span className="block text-sm">
+                        Potential Profit: $
+                        {bookmaker.arbitrage.profit.toFixed(2)} (on $100 stake)
+                      </span>
+                    )}
                   </p>
-                ))}
+                </div>
               </div>
             ))}
           </div>

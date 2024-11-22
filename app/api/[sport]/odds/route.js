@@ -1,17 +1,38 @@
 import { getCachedOdds } from "@/lib/odds-api";
 import { NextResponse } from "next/server";
 
+function calculateArbitrage(odds) {
+  // Convert decimal odds to implied probabilities
+  const impliedProbabilities = odds.map((odd) => 1 / odd);
+  // Calculate total implied probability
+  const totalImpliedProbability = impliedProbabilities.reduce(
+    (a, b) => a + b,
+    0
+  );
+  // Calculate arbitrage percentage
+  const arbitragePercentage = (1 - totalImpliedProbability) * 100;
+  // Calculate individual bet amounts for $100 total stake
+  const totalStake = 100;
+  const betAmounts = impliedProbabilities.map(
+    (prob) => (prob / totalImpliedProbability) * totalStake
+  );
+
+  return {
+    arbitragePercentage,
+    betAmounts,
+    profit:
+      arbitragePercentage > 0
+        ? (Math.abs(arbitragePercentage) / 100) * totalStake
+        : 0,
+  };
+}
+
 export async function GET(request, { params }) {
   const sport = params.sport;
 
-  // console.log(`Fetching ${sport} odds data...`);
-
   try {
     const oddsData = await getCachedOdds(sport);
-    // console.log("Received oddsData:", oddsData);
-
     if (!oddsData) {
-      // console.log("No odds data returned");
       return NextResponse.json(
         { error: "Failed to retrieve odds data" },
         { status: 500 }
@@ -20,7 +41,6 @@ export async function GET(request, { params }) {
 
     try {
       const data = JSON.parse(oddsData);
-
       const remainingRequests = data[data.length - 1].remaining_requests;
       const gameData = data.slice(0, -1);
 
@@ -38,11 +58,31 @@ export async function GET(request, { params }) {
           game.bookmakers.map((bookmaker) => bookmaker.name)
         );
 
+        // Calculate arbitrage for each bookmaker
+        const bookmakers = game.bookmakers.map((bookmaker) => {
+          const odds = Object.values(bookmaker.odds);
+          const arbitrageData = calculateArbitrage(odds);
+
+          return {
+            ...bookmaker,
+            arbitrage: {
+              ...arbitrageData,
+              betAmountsByTeam: Object.keys(bookmaker.odds).reduce(
+                (acc, team, index) => {
+                  acc[team] = arbitrageData.betAmounts[index];
+                  return acc;
+                },
+                {}
+              ),
+            },
+          };
+        });
+
         formattedData[gameKey] = {
           away_team: game.away_team,
           home_team: game.home_team,
           commence_time: game.commence_time,
-          bookmakers: game.bookmakers,
+          bookmakers,
           missing_bookmakers: Array.from(allBookmakers).filter(
             (bookmaker) => !currentBookmakers.has(bookmaker)
           ),
