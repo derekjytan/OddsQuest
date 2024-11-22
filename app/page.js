@@ -15,6 +15,19 @@ function getArbitrageQuality(profitPercentage) {
   return { label: "No Arbitrage", color: "text-red-600" };
 }
 
+function formatDateTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleString(undefined, {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
 export default function Home() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
@@ -45,7 +58,9 @@ export default function Home() {
           <h2 className="text-lg font-bold mb-2">
             Game: {game.away_team} @ {game.home_team}
           </h2>
-          <p className="mb-2">Commence Time: {game.commence_time}</p>
+          <p className="mb-2">
+            Game Time: {formatDateTime(game.commence_time)}
+          </p>
 
           {/* Cross-Bookmaker Arbitrage Section */}
           <div className="mb-4 p-4 bg-gray-100 rounded">
@@ -110,7 +125,7 @@ export default function Home() {
               >
                 <h4 className="font-bold">{bookmaker.name}:</h4>
                 <p className="ml-4 text-sm">
-                  Last Update: {bookmaker.last_update}
+                  Last Update: {formatDateTime(bookmaker.last_update)}
                 </p>
 
                 <div className="ml-4 mt-2">
