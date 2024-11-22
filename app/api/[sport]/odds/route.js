@@ -1,28 +1,70 @@
 import { getCachedOdds } from "@/lib/odds-api";
 import { NextResponse } from "next/server";
 
-function calculateArbitrage(odds) {
-  // Original vig calculation
+function calculateSingleBookmakerArbitrage(odds) {
   const impliedProbabilities = odds.map((odd) => 1 / odd);
   const totalImpliedProbability = impliedProbabilities.reduce(
     (a, b) => a + b,
     0
   );
   const arbitragePercentage = (1 - totalImpliedProbability) * 100;
-
-  // Calculate fair decimal odds
-  const fairDecimalOdds = 1 / impliedProbabilities.reduce((a, b) => a + b);
+  const fairDecimalOdds = (1 / totalImpliedProbability).toFixed(3);
 
   const totalStake = 100;
-  const betAmounts = impliedProbabilities.map(
-    (prob) => (prob / totalImpliedProbability) * totalStake
+  const betAmounts = impliedProbabilities.map((prob) =>
+    ((prob / totalImpliedProbability) * totalStake).toFixed(2)
   );
 
   return {
     arbitragePercentage,
-    fairDecimalOdds: fairDecimalOdds.toFixed(3), // This will show the decimal odds like "1.986"
+    fairDecimalOdds,
     betAmounts,
     betAmountsByTeam: {},
+  };
+}
+
+function detectArbitrageOpportunity(bookmakers) {
+  // Find best odds for each team across all bookmakers
+  let bestOdds = {};
+  let bestOddsSource = {};
+
+  bookmakers.forEach((bookmaker) => {
+    Object.entries(bookmaker.odds).forEach(([team, odd]) => {
+      if (!bestOdds[team] || odd > bestOdds[team]) {
+        bestOdds[team] = odd;
+        bestOddsSource[team] = bookmaker.name;
+      }
+    });
+  });
+
+  // Calculate arbitrage opportunity
+  const impliedProbabilities = Object.values(bestOdds).map((odd) => 1 / odd);
+  const totalImpliedProbability = impliedProbabilities.reduce(
+    (a, b) => a + b,
+    0
+  );
+
+  const hasArbitrage = totalImpliedProbability < 1;
+  const profitPercentage = ((1 - totalImpliedProbability) * 100).toFixed(2);
+  const fairDecimalOdds = (1 / totalImpliedProbability).toFixed(3);
+
+  // Calculate optimal bet amounts for $100 stake
+  const totalStake = 100;
+  const betAmounts = {};
+  Object.keys(bestOdds).forEach((team, index) => {
+    betAmounts[team] = (
+      (impliedProbabilities[index] / totalImpliedProbability) *
+      totalStake
+    ).toFixed(2);
+  });
+
+  return {
+    hasArbitrage,
+    profitPercentage,
+    bestOdds,
+    bestOddsSource,
+    betAmounts,
+    fairDecimalOdds,
   };
 }
 
@@ -43,6 +85,7 @@ export async function GET(request, { params }) {
       const remainingRequests = data[data.length - 1].remaining_requests;
       const gameData = data.slice(0, -1);
 
+      // Track all bookmakers for missing bookmaker detection
       const allBookmakers = new Set();
       gameData.forEach((game) => {
         game.bookmakers.forEach((bookmaker) => {
@@ -57,10 +100,10 @@ export async function GET(request, { params }) {
           game.bookmakers.map((bookmaker) => bookmaker.name)
         );
 
-        // Calculate arbitrage for each bookmaker
+        // Calculate individual bookmaker arbitrage
         const bookmakers = game.bookmakers.map((bookmaker) => {
           const odds = Object.values(bookmaker.odds);
-          const arbitrageData = calculateArbitrage(odds);
+          const arbitrageData = calculateSingleBookmakerArbitrage(odds);
 
           return {
             ...bookmaker,
@@ -77,23 +120,27 @@ export async function GET(request, { params }) {
           };
         });
 
+        // Calculate cross-bookmaker arbitrage
+        const arbitrageOpportunity = detectArbitrageOpportunity(
+          game.bookmakers
+        );
+
         formattedData[gameKey] = {
           away_team: game.away_team,
           home_team: game.home_team,
           commence_time: game.commence_time,
           bookmakers,
+          arbitrageOpportunity,
           missing_bookmakers: Array.from(allBookmakers).filter(
             (bookmaker) => !currentBookmakers.has(bookmaker)
           ),
         };
       });
 
-      const response = {
+      return NextResponse.json({
         odds_data: formattedData,
         remaining_requests: remainingRequests,
-      };
-
-      return NextResponse.json(response);
+      });
     } catch (parseError) {
       console.error("JSON Parse Error:", parseError, "Data:", oddsData);
       return NextResponse.json(

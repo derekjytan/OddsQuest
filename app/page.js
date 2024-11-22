@@ -7,6 +7,14 @@ function getFairOddsQuality(fairOdds) {
   return { label: "Poor", color: "text-red-600" };
 }
 
+function getArbitrageQuality(profitPercentage) {
+  const profit = parseFloat(profitPercentage);
+  if (profit > 0) return { label: "Profitable!", color: "text-green-600" };
+  if (profit > -2)
+    return { label: "Close to Arbitrage", color: "text-yellow-600" };
+  return { label: "No Arbitrage", color: "text-red-600" };
+}
+
 export default function Home() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
@@ -39,8 +47,62 @@ export default function Home() {
           </h2>
           <p className="mb-2">Commence Time: {game.commence_time}</p>
 
+          {/* Cross-Bookmaker Arbitrage Section */}
+          <div className="mb-4 p-4 bg-gray-100 rounded">
+            <h3 className="font-bold mb-2">Cross-Bookmaker Arbitrage:</h3>
+            <div
+              className={`p-3 rounded ${
+                game.arbitrageOpportunity.hasArbitrage
+                  ? "bg-green-100"
+                  : "bg-gray-50"
+              }`}
+            >
+              <p
+                className={
+                  getArbitrageQuality(
+                    game.arbitrageOpportunity.profitPercentage
+                  ).color
+                }
+              >
+                Status:{" "}
+                {
+                  getArbitrageQuality(
+                    game.arbitrageOpportunity.profitPercentage
+                  ).label
+                }
+              </p>
+              <p>
+                Potential Profit: {game.arbitrageOpportunity.profitPercentage}%
+              </p>
+              <p>Fair Odds: {game.arbitrageOpportunity.fairDecimalOdds}</p>
+
+              <div className="mt-2">
+                <p className="font-bold">Best Odds Available:</p>
+                {Object.entries(game.arbitrageOpportunity.bestOdds).map(
+                  ([team, odds]) => (
+                    <div
+                      key={team}
+                      className="flex justify-between items-center mt-1"
+                    >
+                      <span>
+                        {team}: {odds}
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        via {game.arbitrageOpportunity.bestOddsSource[team]}
+                        <span className="ml-2">
+                          Bet: ${game.arbitrageOpportunity.betAmounts[team]}
+                        </span>
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Individual Bookmaker Section */}
           <div className="mb-4">
-            <h3 className="font-bold">Odds & Arbitrage Opportunities:</h3>
+            <h3 className="font-bold">Individual Bookmaker Odds:</h3>
             {game.bookmakers.map((bookmaker) => (
               <div
                 key={bookmaker.name}
@@ -61,8 +123,7 @@ export default function Home() {
                         {team}: {odd}
                       </span>
                       <span className="text-gray-600">
-                        Bet: $
-                        {bookmaker.arbitrage.betAmountsByTeam[team].toFixed(2)}
+                        Bet: ${bookmaker.arbitrage.betAmountsByTeam[team]}
                       </span>
                     </div>
                   ))}
