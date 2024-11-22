@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 
+function getFairOddsQuality(fairOdds) {
+  if (fairOdds >= 0.98) return { label: "Great", color: "text-green-600" };
+  if (fairOdds >= 0.95) return { label: "Average", color: "text-yellow-600" };
+  return { label: "Poor", color: "text-red-600" };
+}
+
 export default function Home() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
@@ -72,8 +78,23 @@ export default function Home() {
                   >
                     Vig: {bookmaker.arbitrage.arbitragePercentage.toFixed(2)}%
                   </p>
-                  <p className="font-bold">
+                  <p className="font-bold flex items-center gap-2">
                     Fair Odds: {bookmaker.arbitrage.fairDecimalOdds}
+                    <span
+                      className={`${
+                        getFairOddsQuality(
+                          parseFloat(bookmaker.arbitrage.fairDecimalOdds)
+                        ).color
+                      } text-sm`}
+                    >
+                      (
+                      {
+                        getFairOddsQuality(
+                          parseFloat(bookmaker.arbitrage.fairDecimalOdds)
+                        ).label
+                      }
+                      )
+                    </span>
                   </p>
                 </div>
               </div>
