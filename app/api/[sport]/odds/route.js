@@ -2,16 +2,17 @@ import { getCachedOdds } from "@/lib/odds-api";
 import { NextResponse } from "next/server";
 
 function calculateArbitrage(odds) {
-  // Convert decimal odds to implied probabilities
+  // Original vig calculation
   const impliedProbabilities = odds.map((odd) => 1 / odd);
-  // Calculate total implied probability
   const totalImpliedProbability = impliedProbabilities.reduce(
     (a, b) => a + b,
     0
   );
-  // Calculate arbitrage percentage
   const arbitragePercentage = (1 - totalImpliedProbability) * 100;
-  // Calculate individual bet amounts for $100 total stake
+
+  // Calculate fair decimal odds
+  const fairDecimalOdds = 1 / impliedProbabilities.reduce((a, b) => a + b);
+
   const totalStake = 100;
   const betAmounts = impliedProbabilities.map(
     (prob) => (prob / totalImpliedProbability) * totalStake
@@ -19,11 +20,9 @@ function calculateArbitrage(odds) {
 
   return {
     arbitragePercentage,
+    fairDecimalOdds: fairDecimalOdds.toFixed(3), // This will show the decimal odds like "1.986"
     betAmounts,
-    profit:
-      arbitragePercentage > 0
-        ? (Math.abs(arbitragePercentage) / 100) * totalStake
-        : 0,
+    betAmountsByTeam: {},
   };
 }
 

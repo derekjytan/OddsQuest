@@ -70,14 +70,10 @@ export default function Home() {
                         : "text-red-600"
                     }`}
                   >
-                    Arbitrage:{" "}
-                    {bookmaker.arbitrage.arbitragePercentage.toFixed(2)}%
-                    {bookmaker.arbitrage.arbitragePercentage > 0 && (
-                      <span className="block text-sm">
-                        Potential Profit: $
-                        {bookmaker.arbitrage.profit.toFixed(2)} (on $100 stake)
-                      </span>
-                    )}
+                    Vig: {bookmaker.arbitrage.arbitragePercentage.toFixed(2)}%
+                  </p>
+                  <p className="font-bold">
+                    Fair Odds: {bookmaker.arbitrage.fairDecimalOdds}
                   </p>
                 </div>
               </div>
