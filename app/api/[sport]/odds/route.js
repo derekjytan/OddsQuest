@@ -10,9 +10,9 @@ function calculateSingleBookmakerArbitrage(odds) {
   const arbitragePercentage = (1 - totalImpliedProbability) * 100;
   const fairDecimalOdds = (1 / totalImpliedProbability).toFixed(3);
 
-  const totalStake = 100;
+  // Calculate percentages without assuming stake
   const betPercentage = impliedProbabilities.map((prob) =>
-    ((prob / totalImpliedProbability) * totalStake).toFixed(2)
+    ((prob / totalImpliedProbability) * 100).toFixed(2)
   );
 
   return {
@@ -48,16 +48,14 @@ function detectArbitrageOpportunity(bookmakers) {
   const profitPercentage = ((1 - totalImpliedProbability) * 100).toFixed(2);
   const fairDecimalOdds = (1 / totalImpliedProbability).toFixed(3);
 
-  // Calculate optimal bet amounts for $100 stake
-  const totalStake = 100;
+  // Calculate bet percentages
   const betPercentage = {};
   Object.keys(bestOdds).forEach((team, index) => {
     betPercentage[team] = (
-      (impliedProbabilities[index] / totalImpliedProbability) *
-      totalStake
+      (impliedProbabilities[index] / totalImpliedProbability) * 100
     ).toFixed(2);
   });
-
+  
   return {
     hasArbitrage,
     profitPercentage,
