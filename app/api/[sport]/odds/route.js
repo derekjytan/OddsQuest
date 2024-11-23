@@ -69,10 +69,20 @@ function detectArbitrageOpportunity(bookmakers) {
 }
 
 export async function GET(request, { params }) {
-  const sport = params.sport;
-
   try {
+    // Ensure params is awaited
+    const { sport } = await params;
+
+    if (!sport) {
+      return NextResponse.json(
+        { error: "Invalid or missing 'sport' parameter" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch odds data
     const oddsData = await getCachedOdds(sport);
+
     if (!oddsData) {
       return NextResponse.json(
         { error: "Failed to retrieve odds data" },

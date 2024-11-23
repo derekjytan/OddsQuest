@@ -32,10 +32,10 @@ export default function Home() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
   const [stakes, setStakes] = useState({});
-
+  const sport = "upcoming"
 
   useEffect(() => {
-    fetch("/api/basketball_nba/odds")
+    fetch(`/api/${sport}/odds`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
