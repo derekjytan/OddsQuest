@@ -1,4 +1,4 @@
-import { getCachedOdds } from "@/lib/odds-api";
+import { getGlobalOddsCache } from "@/lib/scheduler";
 import { NextResponse } from "next/server";
 
 function calculateSingleBookmakerArbitrage(odds) {
@@ -23,6 +23,7 @@ function calculateSingleBookmakerArbitrage(odds) {
   };
 }
 
+// This function will take a bookmaker object and return the arbitrage opportunity
 function detectArbitrageOpportunity(bookmakers) {
   // Find best odds for each team across all bookmakers
   let bestOdds = {};
@@ -68,8 +69,7 @@ function detectArbitrageOpportunity(bookmakers) {
 
 export async function GET(request, { params }) {
   try {
-    // Ensure params is awaited
-    const { sport } = await params;
+    const { sport } = params;
 
     if (!sport) {
       return NextResponse.json(
@@ -77,14 +77,14 @@ export async function GET(request, { params }) {
         { status: 400 }
       );
     }
-
-    // Fetch odds data
-    const oddsData = await getCachedOdds(sport);
+    
+    // Get cache data and initialize if needed
+    const { data: oddsData, lastUpdate } = await getGlobalOddsCache();
 
     if (!oddsData) {
       return NextResponse.json(
-        { error: "Failed to retrieve odds data" },
-        { status: 500 }
+        { error: "Failed to initialize cache" },
+        { status: 503 }
       );
     }
 
@@ -148,6 +148,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({
         odds_data: formattedData,
         remaining_requests: remainingRequests,
+        last_update: lastUpdate,
       });
     } catch (parseError) {
       console.error("JSON Parse Error:", parseError, "Data:", oddsData);
