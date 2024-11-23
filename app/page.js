@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 
+// Function to get label and color based on fair odds
 function getFairOddsQuality(fairOdds) {
   if (fairOdds >= 0.98) return { label: "Great", color: "text-green-600" };
   if (fairOdds >= 0.95) return { label: "Average", color: "text-yellow-600" };
   return { label: "Poor", color: "text-red-600" };
 }
 
+// Function to get label and color based on profit percentage
 function getArbitrageQuality(profitPercentage) {
   const profit = parseFloat(profitPercentage);
   if (profit > 0) return { label: "Profitable!", color: "text-green-600" };
@@ -15,6 +17,7 @@ function getArbitrageQuality(profitPercentage) {
   return { label: "No Arbitrage", color: "text-red-600" };
 }
 
+// Function to format the date and time
 function formatDateTime(dateString) {
   const date = new Date(dateString);
   return date.toLocaleString(undefined, {
@@ -24,7 +27,7 @@ function formatDateTime(dateString) {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    hour12: false,
+    hour12: true,
   });
 }
 
@@ -41,13 +44,14 @@ export default function Home() {
         if (data.error) {
           throw new Error(data.error);
         }
+        // Store the odds data in the state 
         setOddsData(data);
         // Initialize stakes object with empty values for each game
         const initialStakes = {};
         Object.keys(data.odds_data).forEach(gameKey => {
           initialStakes[gameKey] = {
-            amount: '',
-            team: null
+            totalStake: '',
+            bets: {}
           };
         });
         setStakes(initialStakes);
@@ -55,36 +59,35 @@ export default function Home() {
       .catch((err) => setError(err.message));
   }, []);
 
-  const handleStakeChange = (gameKey, team, value) => {
+  // Handle the total stake changes 
+  const handleTotalStakeChange = (gameKey, value) => {
     const game = oddsData.odds_data[gameKey];
     const percentages = game.arbitrageOpportunity.betPercentage;
     
     if (value === '') {
       setStakes(prev => ({
         ...prev,
-        [gameKey]: { amount: '', team: null }
+        [gameKey]: { totalStake: '', bets: {} }
       }));
       return;
     }
 
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) return;
+    const totalStake = parseFloat(value);
+    if (isNaN(totalStake)) return;
 
-    const totalStake = (numericValue * 100) / percentages[team];
-    const newStakes = { amount: numericValue, team };
+    // Calculate individual bets based on percentage
+    const bets = {};
+    Object.keys(percentages).forEach(team => {
+      bets[team] = ((totalStake * percentages[team]) / 100).toFixed(2);
+    });
     
     setStakes(prev => ({
       ...prev,
-      [gameKey]: newStakes
+      [gameKey]: {
+        totalStake: value,
+        bets: bets
+      }
     }));
-  };
-
-  const calculateOtherStake = (gameKey, team, currentStake) => {
-    if (!currentStake) return '';
-    const game = oddsData.odds_data[gameKey];
-    const percentages = game.arbitrageOpportunity.betPercentage;
-    const totalStake = (currentStake * 100) / percentages[stakes[gameKey].team];
-    return ((totalStake * percentages[team]) / 100).toFixed(2);
   };
 
   if (error)
@@ -136,6 +139,21 @@ export default function Home() {
 
               <div className="mt-2">
                 <p className="font-bold">Best Odds Available:</p>
+                {/* Total stake input field */}
+                <div className="mb-3 flex items-center">
+                  <span className="font-bold mr-2">Total Stake: $</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Enter stake"
+                    className="px-2 py-1 border rounded ml-2"
+                    value={stakes[gameKey]?.totalStake || ''}
+                    onChange={(e) => handleTotalStakeChange(gameKey, e.target.value)}
+                  />
+                </div>
+
+                {/* Individual bets based on total stake */}
                 {Object.entries(game.arbitrageOpportunity.bestOdds).map(
                   ([team, odds]) => (
                     <div
@@ -152,12 +170,9 @@ export default function Home() {
                         </span>
                         <input
                         type="number"
-                        min="0"
-                        step="0.01"
-                        placeholder="Enter stake"
-                        className="w-50 px-2 py-1 border rounded ml-2"
-                        value={stakes[gameKey]?.team === team ? stakes[gameKey].amount : calculateOtherStake(gameKey, team, stakes[gameKey]?.amount)}
-                        onChange={(e) => handleStakeChange(gameKey, team, e.target.value)}
+                        readOnly
+                        className="w-50 px-2 py-1 border rounded ml-2 bg-gray-50"
+                        value={stakes[gameKey]?.bets[team] || ''}
                       />
                       </span>
                     </div>
