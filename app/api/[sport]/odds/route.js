@@ -94,20 +94,20 @@ export async function GET(request, { params }) {
       const gameData = data.slice(0, -1);
 
       // If there are no bookmakers avaliable, the game is finished, so don't display it
-      const activeGames = gameData.filter((game) => {
+      const gamesWithBookmakers = gameData.filter((game) => {
         return game.bookmakers.length > 0;
       });
 
       // Track all bookmakers for missing bookmaker detection
       const allBookmakers = new Set();
-      activeGames.forEach((game) => {
+      gamesWithBookmakers.forEach((game) => {
         game.bookmakers.forEach((bookmaker) => {
           allBookmakers.add(bookmaker.name);
         });
       });
 
       const formattedData = {};
-      activeGames.forEach((game, index) => {
+      gamesWithBookmakers.forEach((game, index) => {
         const gameKey = `Game ${index + 1}`;
         const currentBookmakers = new Set(
           game.bookmakers.map((bookmaker) => bookmaker.name)
