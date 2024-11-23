@@ -11,15 +11,15 @@ function calculateSingleBookmakerArbitrage(odds) {
   const fairDecimalOdds = (1 / totalImpliedProbability).toFixed(3);
 
   const totalStake = 100;
-  const betAmounts = impliedProbabilities.map((prob) =>
+  const betPercentage = impliedProbabilities.map((prob) =>
     ((prob / totalImpliedProbability) * totalStake).toFixed(2)
   );
 
   return {
     arbitragePercentage,
     fairDecimalOdds,
-    betAmounts,
-    betAmountsByTeam: {},
+    betPercentage,
+    betPercentageByTeam: {},
   };
 }
 
@@ -50,9 +50,9 @@ function detectArbitrageOpportunity(bookmakers) {
 
   // Calculate optimal bet amounts for $100 stake
   const totalStake = 100;
-  const betAmounts = {};
+  const betPercentage = {};
   Object.keys(bestOdds).forEach((team, index) => {
-    betAmounts[team] = (
+    betPercentage[team] = (
       (impliedProbabilities[index] / totalImpliedProbability) *
       totalStake
     ).toFixed(2);
@@ -63,7 +63,7 @@ function detectArbitrageOpportunity(bookmakers) {
     profitPercentage,
     bestOdds,
     bestOddsSource,
-    betAmounts,
+    betPercentage,
     fairDecimalOdds,
   };
 }
@@ -109,9 +109,9 @@ export async function GET(request, { params }) {
             ...bookmaker,
             arbitrage: {
               ...arbitrageData,
-              betAmountsByTeam: Object.keys(bookmaker.odds).reduce(
+              betPercentageByTeam: Object.keys(bookmaker.odds).reduce(
                 (acc, team, index) => {
-                  acc[team] = arbitrageData.betAmounts[index];
+                  acc[team] = arbitrageData.betPercentage[index];
                   return acc;
                 },
                 {}

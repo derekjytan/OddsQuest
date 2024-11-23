@@ -31,6 +31,8 @@ function formatDateTime(dateString) {
 export default function Home() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
+  const [stakes, setStakes] = useState({});
+
 
   useEffect(() => {
     fetch("/api/basketball_nba/odds")
@@ -40,9 +42,50 @@ export default function Home() {
           throw new Error(data.error);
         }
         setOddsData(data);
+        // Initialize stakes object with empty values for each game
+        const initialStakes = {};
+        Object.keys(data.odds_data).forEach(gameKey => {
+          initialStakes[gameKey] = {
+            amount: '',
+            team: null
+          };
+        });
+        setStakes(initialStakes);
       })
       .catch((err) => setError(err.message));
   }, []);
+
+  const handleStakeChange = (gameKey, team, value) => {
+    const game = oddsData.odds_data[gameKey];
+    const percentages = game.arbitrageOpportunity.betPercentage;
+    
+    if (value === '') {
+      setStakes(prev => ({
+        ...prev,
+        [gameKey]: { amount: '', team: null }
+      }));
+      return;
+    }
+
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue)) return;
+
+    const totalStake = (numericValue * 100) / percentages[team];
+    const newStakes = { amount: numericValue, team };
+    
+    setStakes(prev => ({
+      ...prev,
+      [gameKey]: newStakes
+    }));
+  };
+
+  const calculateOtherStake = (gameKey, team, currentStake) => {
+    if (!currentStake) return '';
+    const game = oddsData.odds_data[gameKey];
+    const percentages = game.arbitrageOpportunity.betPercentage;
+    const totalStake = (currentStake * 100) / percentages[stakes[gameKey].team];
+    return ((totalStake * percentages[team]) / 100).toFixed(2);
+  };
 
   if (error)
     return (
@@ -105,8 +148,17 @@ export default function Home() {
                       <span className="text-sm text-gray-600">
                         via {game.arbitrageOpportunity.bestOddsSource[team]}
                         <span className="ml-2">
-                          Bet: ${game.arbitrageOpportunity.betAmounts[team]}
+                          Bet: {game.arbitrageOpportunity.betPercentage[team]}%
                         </span>
+                        <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Enter stake"
+                        className="w-50 px-2 py-1 border rounded ml-2"
+                        value={stakes[gameKey]?.team === team ? stakes[gameKey].amount : calculateOtherStake(gameKey, team, stakes[gameKey]?.amount)}
+                        onChange={(e) => handleStakeChange(gameKey, team, e.target.value)}
+                      />
                       </span>
                     </div>
                   )
@@ -138,7 +190,7 @@ export default function Home() {
                         {team}: {odd}
                       </span>
                       <span className="text-gray-600">
-                        Bet: ${bookmaker.arbitrage.betAmountsByTeam[team]}
+                        Bet: {bookmaker.arbitrage.betPercentageByTeam[team]}%
                       </span>
                     </div>
                   ))}
