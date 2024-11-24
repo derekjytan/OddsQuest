@@ -64,6 +64,7 @@ function detectArbitrageOpportunity(bookmakers) {
     bestOddsSource,
     betPercentage,
     fairDecimalOdds,
+    totalImpliedProbability,
   };
 }
 
