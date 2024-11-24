@@ -8,15 +8,6 @@ function getFairOddsQuality(fairOdds) {
   return { label: "Poor", color: "text-red-600" };
 }
 
-// Function to get label and color based on profit percentage
-function getArbitrageQuality(profitPercentage) {
-  const profit = parseFloat(profitPercentage);
-  if (profit > 0) return { label: "Profitable!", color: "text-green-600" };
-  if (profit > -2)
-    return { label: "Close to Arbitrage", color: "text-yellow-600" };
-  return { label: "No Arbitrage", color: "text-red-600" };
-}
-
 // Function to format the date and time
 function formatDateTime(dateString) {
   const date = new Date(dateString);
@@ -111,74 +102,71 @@ export default function Home() {
           {/* Cross-Bookmaker Arbitrage Section */}
           <div className="mb-4 p-4 bg-gray-100 rounded">
             <h3 className="font-bold mb-2">Cross-Bookmaker Arbitrage:</h3>
-            <div
-              className={`p-3 rounded ${
-                game.arbitrageOpportunity.hasArbitrage
-                  ? "bg-green-100"
-                  : "bg-gray-50"
-              }`}
-            >
-              <p
-                className={
-                  getArbitrageQuality(
-                    game.arbitrageOpportunity.profitPercentage
-                  ).color
-                }
-              >
-                Status:{" "}
-                {
-                  getArbitrageQuality(
-                    game.arbitrageOpportunity.profitPercentage
-                  ).label
-                }
-              </p>
-              <p>
-                Potential Profit: {game.arbitrageOpportunity.profitPercentage}%
-              </p>
-              <p>Fair Odds: {game.arbitrageOpportunity.fairDecimalOdds}</p>
-
-              <div className="mt-2">
-                <p className="font-bold">Best Odds Available:</p>
-                {/* Total stake input field */}
-                <div className="mb-3 flex items-center">
-                  <span className="font-bold mr-2">Total Stake: $</span>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Enter stake"
-                    className="px-2 py-1 border rounded ml-2"
-                    value={stakes[gameKey]?.totalStake || ''}
-                    onChange={(e) => handleTotalStakeChange(gameKey, e.target.value)}
-                  />
-                </div>
-
-                {/* Individual bets based on total stake */}
-                {Object.entries(game.arbitrageOpportunity.bestOdds).map(
-                  ([team, odds]) => (
-                    <div
-                      key={team}
-                      className="flex justify-between items-center mt-1"
-                    >
-                      <span>
-                        {team}: {odds}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        via {game.arbitrageOpportunity.bestOddsSource[team]}
-                        <span className="ml-2">
-                          Bet: {game.arbitrageOpportunity.betPercentage[team]}%
-                        </span>
-                        <input
-                        type="number"
-                        readOnly
-                        className="w-50 px-2 py-1 border rounded ml-2 bg-gray-50"
-                        value={stakes[gameKey]?.bets[team] || ''}
-                      />
-                      </span>
-                    </div>
-                  )
+            
+            {/* Profit Metrics */}
+            <div className="mb-4 space-y-2">
+              <p>Total Market Probability: {(game.arbitrageOpportunity.totalImpliedProbability * 100).toFixed(2)}%</p>
+              <div className={game.arbitrageOpportunity.profitPercentage > 0 ? "text-green-600" : "text-red-600"}>
+                <p>Potential Return: {game.arbitrageOpportunity.profitPercentage}%</p>
+                {stakes[gameKey]?.totalStake && (
+                  <p>
+                    Profit: ${(stakes[gameKey].totalStake * (game.arbitrageOpportunity.profitPercentage / 100)).toFixed(2)}
+                  </p>
                 )}
               </div>
+            </div>
+
+            {/* Stake Input */}
+            <div className="mb-4">
+              <label className="flex items-center gap-2">
+                Total Stake: $
+                <input
+                  type="number"
+                  min="0"
+                  className="border rounded px-2 py-1"
+                  placeholder="Enter stake"
+                  value={stakes[gameKey]?.totalStake || ''}
+                  onChange={(e) => handleTotalStakeChange(gameKey, e.target.value)}
+                />
+              </label>
+            </div>
+
+            {/* Odds Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left border-b">
+                    <th className="pb-2">Outcome</th>
+                    <th className="pb-2">Odds</th>
+                    <th className="pb-2">Implied Prob</th>
+                    <th className="pb-2">Bet Amount</th>
+                    <th className="pb-2">Return</th>
+                    <th className="pb-2">Via</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(game.arbitrageOpportunity.bestOdds).map(([team, odds]) => {
+                    const impliedProb = (1/odds * 100).toFixed(2);
+                    const betAmount = stakes[gameKey]?.totalStake ? 
+                      (stakes[gameKey].totalStake * game.arbitrageOpportunity.betPercentage[team] / 100).toFixed(2) : 
+                      '0.00';
+                    const potentialReturn = stakes[gameKey]?.totalStake ? 
+                      (betAmount * odds).toFixed(2) : 
+                      '0.00';
+                    
+                    return (
+                      <tr key={team} className="border-b">
+                        <td className="py-2">{team}</td>
+                        <td>{odds.toFixed(2)}</td>
+                        <td>{impliedProb}%</td>
+                        <td>${betAmount}</td>
+                        <td>${potentialReturn}</td>
+                        <td>{game.arbitrageOpportunity.bestOddsSource[team]}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
 
