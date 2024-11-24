@@ -32,6 +32,9 @@ async function getOdds(sport) {
 
     for (const game of data) {
       const gameData = {
+        id: game["id"],
+        sports_key: game["sport_key"],
+        sports_title: game["sport_title"],
         home_team: game["home_team"],
         away_team: game["away_team"],
         commence_time: game["commence_time"],
