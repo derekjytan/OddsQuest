@@ -1,7 +1,35 @@
 import "dotenv/config";
 
+// Get the sport form the api
+async function getSports() {
+  const url = "https://api.the-odds-api.com/v4/sports";
+  const params = new URLSearchParams({
+    apiKey: process.env.ODDS_API_KEY,
+  });
+
+  try {
+    const response = await fetch(`${url}?${params}`);
+    if (!response.ok) {
+      console.log('Sports API Response Error:', {
+        status: response.status,
+        statusText: response.statusText
+      });
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const sports = await response.json();
+    // Only return active sports 
+    return sports.filter(sport => sport.active);
+  } catch (error) {
+    console.error('Error in getSport:', error);
+    return [];
+  }
+}
+
+
 // Get the odds from the API for a given sport
 async function getOdds(sport) {
+  console.log('1. Starting getOdds for sport:', sport);
   const url = "https://api.the-odds-api.com/v4/sports/" + sport + "/odds";
   const params = new URLSearchParams({
     apiKey: process.env.ODDS_API_KEY,
@@ -12,77 +40,59 @@ async function getOdds(sport) {
   });
 
   try {
-    console.log("Fetching from URL:", `${url}?${params}`);
+    console.log('2. Making API request to:', url);
     const response = await fetch(`${url}?${params}`);
 
     if (!response.ok) {
-      console.error(
-        "API Response not OK:",
-        response.status,
-        response.statusText
-      );
-      const errorText = await response.text();
-      console.error("Error response:", errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error('3. API Response Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        sport: sport
+      });
+      
+      // Skip 422 errors without throwing
+      if (response.status === 422) {
+        console.log(`Skipping ${sport} - market not available`);
+        return null;
+      }
+      
+      return null;
     }
 
     const data = await response.json();
-    // console.log("Received API data:", data);
+    console.log('4. Received API data length:', data.length);
+    
     const formattedData = [];
 
     for (const game of data) {
       const gameData = {
         id: game["id"],
-        sports_key: game["sport_key"],
-        sports_title: game["sport_title"],
+        sport_key: game["sport_key"],
+        sport_title: game["sport_title"],
         home_team: game["home_team"],
         away_team: game["away_team"],
         commence_time: game["commence_time"],
-        bookmakers: [],
-      };
-
-      for (const bookmaker of game["bookmakers"]) {
-        const bookmakerData = {
+        bookmakers: game["bookmakers"].map(bookmaker => ({
           name: bookmaker["title"],
           last_update: bookmaker["last_update"],
-          odds: {},
-        };
-
-        if (bookmaker["markets"] && bookmaker["markets"][0]) {
-          for (const outcome of bookmaker["markets"][0]["outcomes"]) {
-            bookmakerData["odds"][outcome["name"]] = outcome["price"];
-          }
-        }
-
-        gameData["bookmakers"].push(bookmakerData);
-      }
+          odds: bookmaker["markets"]?.[0]?.["outcomes"].reduce((acc, outcome) => {
+            acc[outcome["name"]] = outcome["price"];
+            return acc;
+          }, {}) || {}
+        }))
+      };
 
       formattedData.push(gameData);
     }
 
-    const remainingRequests =
-      response.headers.get("x-requests-remaining") || "Unknown";
+    const remainingRequests = response.headers.get("x-requests-remaining") || "Unknown";
     formattedData.push({ remaining_requests: remainingRequests });
 
-    return JSON.stringify(formattedData, 2);
+    return formattedData;
   } catch (error) {
-    if (error.name === "FetchError") {
-      if (error.response?.status === 401) {
-        console.log("Error: Invalid API key");
-      } else if (error.response?.status === 429) {
-        console.log("Error: API request limit exceeded");
-      } else {
-        console.log(`HTTP Error: ${error}`);
-      }
-    } else if (error.name === "TypeError") {
-      console.log("Error: Unable to connect to the API");
-    } else if (error.name === "SyntaxError") {
-      console.log("Error: Unable to parse API response");
-    } else {
-      console.log(`An unexpected error occurred: ${error}`);
-    }
+    console.error('5. Error in getOdds:', error);
     return null;
   }
 }
 
-export { getOdds };
+export { getOdds, getSports};
