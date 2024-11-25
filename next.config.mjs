@@ -8,7 +8,7 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     if (isServer) {
       (async () => {
-        const scheduler = await import('./lib/scheduler.js');
+        const scheduler = await import('./lib/scheduler.jsx');
         scheduler.initializeScheduler();
       })();
     }

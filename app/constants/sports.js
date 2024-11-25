@@ -1,7 +1,6 @@
 export const sports = [
   { id: 'basketball_nba', label: 'NBA' },
   { id: 'americanfootball_nfl', label: 'NFL' },
-  { id: 'baseball_mlb', label: 'MLB' },
   { id: 'icehockey_nhl', label: 'NHL' },
   { id: 'soccer_epl', label: 'Premier League' },
   { id: 'soccer_uefa_champs_league', label: 'Champions League' },
