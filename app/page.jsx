@@ -9,7 +9,16 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { ArrowRight, DollarSign, BarChart, Globe, Shield, CheckCircle, Zap, Bell } from "lucide-react";
+import {
+  ArrowRight,
+  DollarSign,
+  BarChart,
+  Globe,
+  Shield,
+  CheckCircle,
+  Zap,
+  Bell,
+} from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 
@@ -20,7 +29,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
           <h1 className="text-xl font-bold">OddsQuest</h1>
-          
+
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -37,7 +46,8 @@ export default function Home() {
                             About OddsQuest
                           </div>
                           <p className="text-sm leading-tight text-muted-foreground">
-                            Learn how we help bettors maximize their profits through arbitrage opportunities.
+                            Learn how we help bettors maximize their profits
+                            through arbitrage opportunities.
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -53,9 +63,12 @@ export default function Home() {
                     <li>
                       <NavigationMenuLink asChild>
                         <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">Real-Time Alerts</div>
+                          <div className="text-sm font-medium leading-none">
+                            Real-Time Alerts
+                          </div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                            Get instant notifications for profitable opportunities.
+                            Get instant notifications for profitable
+                            opportunities.
                           </p>
                         </a>
                       </NavigationMenuLink>
@@ -63,7 +76,9 @@ export default function Home() {
                     <li>
                       <NavigationMenuLink asChild>
                         <a className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                          <div className="text-sm font-medium leading-none">Automated Analysis</div>
+                          <div className="text-sm font-medium leading-none">
+                            Automated Analysis
+                          </div>
                           <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Let our system do the calculations for you.
                           </p>
@@ -102,23 +117,35 @@ export default function Home() {
           <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32 sm:py-48">
             <div className="max-w-3xl space-y-6">
               <div className="flex items-center space-x-2 text-sm font-medium">
-                <span className="bg-black text-white px-3 py-1 rounded-full">New</span>
-                <span className="text-muted-foreground">Multi-bookmaker support added!</span>
+                <span className="bg-black text-white px-3 py-1 rounded-full">
+                  New
+                </span>
+                <span className="text-muted-foreground">
+                  Multi-bookmaker support added!
+                </span>
               </div>
               <h1 className="text-4xl sm:text-6xl font-bold tracking-tight">
-                Turn Sports Betting into <span className="text-black">Guaranteed Profits</span>
+                Turn Sports Betting into{" "}
+                <span className="text-black">Guaranteed Profits</span>
               </h1>
               <p className="text-xl text-muted-foreground">
-                Join smart bettors who use OddsQuest to find arbitrage opportunities with up to 50% ROI. Real-time alerts, zero manual calculations.
+                Join smart bettors who use OddsQuest to find arbitrage
+                opportunities with up to 50% ROI. Real-time alerts, zero manual
+                calculations.
               </p>
               <div className="space-x-4 pt-4">
                 <Link href="/dashboard">
-                  <Button size="lg" className="bg-black text-white hover:bg-black/90">
+                  <Button
+                    size="lg"
+                    className="bg-black text-white hover:bg-black/90"
+                  >
                     Start Free Trial
                     <ArrowRight className="ml-2" />
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline">Watch Demo</Button>
+                <Button size="lg" variant="outline">
+                  Watch Demo
+                </Button>
               </div>
               <div className="flex items-center space-x-4 pt-6 text-sm text-muted-foreground">
                 <div className="flex items-center">
@@ -138,13 +165,19 @@ export default function Home() {
         <section className="border-y bg-white">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
             <div className="text-center mb-12">
-              <h2 className="text-2xl font-bold mb-2">Trusted by Professional Bettors</h2>
-              <p className="text-muted-foreground">Join thousands of users making consistent profits</p>
+              <h2 className="text-2xl font-bold mb-2">
+                Trusted by Professional Bettors
+              </h2>
+              <p className="text-muted-foreground">
+                Join thousands of users making consistent profits
+              </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="text-center space-y-2">
                 <div className="text-4xl font-bold">50+</div>
-                <div className="text-muted-foreground font-medium">Bookmakers</div>
+                <div className="text-muted-foreground font-medium">
+                  Bookmakers
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold">10K+</div>
@@ -178,7 +211,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold">1. Get Alerts</h3>
                 <p className="text-muted-foreground">
-                  Receive instant notifications when profitable opportunities are found
+                  Receive instant notifications when profitable opportunities
+                  are found
                 </p>
               </div>
               <div className="text-center space-y-4">
@@ -207,12 +241,15 @@ export default function Home() {
         <section className="bg-white py-24">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold">Everything You Need to Succeed</h2>
+              <h2 className="text-3xl font-bold">
+                Everything You Need to Succeed
+              </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Professional tools designed for both beginners and experienced arbitrage bettors
+                Professional tools designed for both beginners and experienced
+                arbitrage bettors
               </p>
             </div>
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 space-y-4 hover:shadow-lg transition-all bg-white group">
                 <div className="bg-[#F5F5DC] w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -220,7 +257,8 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-semibold">Real-Time Analysis</h3>
                 <p className="text-muted-foreground">
-                  Get instant notifications and analysis for new arbitrage opportunities across multiple bookmakers.
+                  Get instant notifications and analysis for new arbitrage
+                  opportunities across multiple bookmakers.
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center">
@@ -252,7 +290,6 @@ export default function Home() {
 
           <div className="container relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-32">
             <div className="max-w-4xl mx-auto text-center space-y-8">
-
               {/* Heading with gradient text */}
               <h2 className="text-5xl sm:text-6xl font-bold mb-6 bg-gradient-to-r from-black via-black to-black/80 bg-clip-text text-transparent">
                 Start Profiting Today
@@ -261,8 +298,8 @@ export default function Home() {
               {/* Enhanced value proposition */}
               <div className="space-y-6">
                 <p className="text-xl text-black/80 max-w-2xl mx-auto leading-relaxed">
-                  Join thousands of users who are already making consistent profits from sports arbitrage.
-                  No prior experience needed.
+                  Join thousands of users who are already making consistent
+                  profits from sports arbitrage. No prior experience needed.
                 </p>
 
                 {/* Feature highlights */}
@@ -270,19 +307,25 @@ export default function Home() {
                   <div className="px-4 py-3 rounded-lg bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors">
                     <div className="flex items-center justify-center space-x-2">
                       <CheckCircle className="w-5 h-5 text-black/70" />
-                      <span className="text-sm font-medium text-black/80">Real-time Alerts</span>
+                      <span className="text-sm font-medium text-black/80">
+                        Real-time Alerts
+                      </span>
                     </div>
                   </div>
                   <div className="px-4 py-3 rounded-lg bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors">
                     <div className="flex items-center justify-center space-x-2">
                       <Shield className="w-5 h-5 text-black/70" />
-                      <span className="text-sm font-medium text-black/80">Risk-Free Returns</span>
+                      <span className="text-sm font-medium text-black/80">
+                        Risk-Free Returns
+                      </span>
                     </div>
                   </div>
                   <div className="px-4 py-3 rounded-lg bg-white/50 backdrop-blur-sm hover:bg-white/70 transition-colors">
                     <div className="flex items-center justify-center space-x-2">
                       <Zap className="w-5 h-5 text-black/70" />
-                      <span className="text-sm font-medium text-black/80">Instant Analysis</span>
+                      <span className="text-sm font-medium text-black/80">
+                        Instant Analysis
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -292,14 +335,17 @@ export default function Home() {
               <div className="space-y-6 pt-8">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link href="/dashboard">
-                    <Button size="lg" className="bg-black text-white hover:bg-black/90 transition-colors duration-300 min-w-[200px]">
+                    <Button
+                      size="lg"
+                      className="bg-black text-white hover:bg-black/90 transition-colors duration-300 min-w-[200px]"
+                    >
                       Start Free Trial
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Button>
                   </Link>
-                  <Button 
-                    size="lg" 
-                    variant="outline" 
+                  <Button
+                    size="lg"
+                    variant="outline"
                     className="border-black/20 text-black hover:bg-black/5 transition-colors duration-300 min-w-[200px]"
                   >
                     Schedule Demo
@@ -335,9 +381,30 @@ export default function Home() {
             <div className="space-y-4">
               <h3 className="font-semibold">Product</h3>
               <ul className="space-y-2">
-                <li><Button variant="link" className="text-black hover:text-black/80">Features</Button></li>
-                <li><Button variant="link" className="text-black hover:text-black/80">Pricing</Button></li>
-                <li><Button variant="link" className="text-black hover:text-black/80">API</Button></li>
+                <li>
+                  <Button
+                    variant="link"
+                    className="text-black hover:text-black/80"
+                  >
+                    Features
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    variant="link"
+                    className="text-black hover:text-black/80"
+                  >
+                    Pricing
+                  </Button>
+                </li>
+                <li>
+                  <Button
+                    variant="link"
+                    className="text-black hover:text-black/80"
+                  >
+                    API
+                  </Button>
+                </li>
               </ul>
             </div>
             {/* Add more footer columns with the same styling */}
@@ -347,9 +414,27 @@ export default function Home() {
               © 2024 OddsQuest. All rights reserved.
             </p>
             <div className="space-x-4">
-              <Button variant="ghost" size="sm" className="text-black hover:bg-[#F5F5DC]/50">Terms</Button>
-              <Button variant="ghost" size="sm" className="text-black hover:bg-[#F5F5DC]/50">Privacy</Button>
-              <Button variant="ghost" size="sm" className="text-black hover:bg-[#F5F5DC]/50">Contact</Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-black hover:bg-[#F5F5DC]/50"
+              >
+                Terms
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-black hover:bg-[#F5F5DC]/50"
+              >
+                Privacy
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-black hover:bg-[#F5F5DC]/50"
+              >
+                Contact
+              </Button>
             </div>
           </div>
         </div>

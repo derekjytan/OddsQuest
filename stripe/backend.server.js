@@ -7,17 +7,16 @@ export const stripeApiClient = process.env.STRIPE_SECRET_KEY
   : null;
 
 export const customerHasFeature = async ({ customerId, feature }) => {
-  const customer = (await stripeApiClient.customers.retrieve(customerId, {
+  const customer = await stripeApiClient.customers.retrieve(customerId, {
     expand: ["subscriptions"],
-  }))
+  });
   let subscription = customer.subscriptions.data[0] || null;
   if (subscription) {
     subscription = await stripeApiClient.subscriptions.retrieve(
       subscription.id,
       { expand: ["items.data.price.product"] }
     );
-    const features = (subscription.items.data[0].price
-      .product).metadata.features;
+    const features = subscription.items.data[0].price.product.metadata.features;
     return features?.includes(feature);
   }
   return false;
@@ -43,12 +42,11 @@ async function useSubscription({ customerId }) {
   // Retrieve products based on default billing portal config
 
   // First, retrieve the configuration
-  const configurations = await stripeApiClient.billingPortal.configurations.list(
-    {
+  const configurations =
+    await stripeApiClient.billingPortal.configurations.list({
       is_default: true,
       expand: ["data.features.subscription_update.products"],
-    }
-  );
+    });
 
   // Stripe doesn't let us expand as much as we'd like.
   // Run this big mess to manually expand
@@ -57,28 +55,29 @@ async function useSubscription({ customerId }) {
   const products = new Array(
     configurations.data[0].features.subscription_update.products.length
   );
-  const pricePromises = configurations.data[0].features.subscription_update.products
-    .map((product, i) =>
-      product.prices.map(async (price, j) => {
-        const priceData = await stripeApiClient.prices.retrieve(price, {
-          expand: ["product"],
-        });
-        const cleanPriceData = {
-          ...priceData,
-          product: (priceData.product).id,
-        };
-        if (!products[i]) {
-          products[i] = {
-            product: priceData.product,
-            prices: new Array(product.prices.length),
+  const pricePromises =
+    configurations.data[0].features.subscription_update.products
+      .map((product, i) =>
+        product.prices.map(async (price, j) => {
+          const priceData = await stripeApiClient.prices.retrieve(price, {
+            expand: ["product"],
+          });
+          const cleanPriceData = {
+            ...priceData,
+            product: priceData.product.id,
           };
-          products[i].prices[j] = cleanPriceData;
-        } else {
-          products[i].prices[j] = cleanPriceData;
-        }
-      })
-    )
-    .flat();
+          if (!products[i]) {
+            products[i] = {
+              product: priceData.product,
+              prices: new Array(product.prices.length),
+            };
+            products[i].prices[j] = cleanPriceData;
+          } else {
+            products[i].prices[j] = cleanPriceData;
+          }
+        })
+      )
+      .flat();
 
   let subscription;
   const subscriptionPromise = stripeApiClient.customers
@@ -102,12 +101,11 @@ async function redirectToCustomerPortal({ customerId, body }) {
 }
 
 async function redirectToCheckout({ customerId, body }) {
-  const configurations = await stripeApiClient.billingPortal.configurations.list(
-    {
+  const configurations =
+    await stripeApiClient.billingPortal.configurations.list({
       is_default: true,
       expand: ["data.features.subscription_update.products"],
-    }
-  );
+    });
 
   // Make sure the price ID is in here somewhere
   let go = false;

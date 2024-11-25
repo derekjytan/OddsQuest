@@ -1,6 +1,6 @@
-import { Header } from "@/app/components/Header"
-import { Sidebar } from "@/app/components/Sidebar"
-import { SignedIn, SignedOut, SignIn } from "@clerk/nextjs"
+import { Header } from "@/app/components/Header";
+import { Sidebar } from "@/app/components/Sidebar";
+import { SignedIn, SignedOut, SignIn } from "@clerk/nextjs";
 
 export default function DashboardLayout({ children }) {
   return (
@@ -9,9 +9,7 @@ export default function DashboardLayout({ children }) {
         <Sidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
-          <main className="flex-1 overflow-y-auto">
-            {children}
-          </main>
+          <main className="flex-1 overflow-y-auto">{children}</main>
         </div>
       </SignedIn>
       <SignedOut>
@@ -20,5 +18,5 @@ export default function DashboardLayout({ children }) {
         </div>
       </SignedOut>
     </div>
-  )
+  );
 }

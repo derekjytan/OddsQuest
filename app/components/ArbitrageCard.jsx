@@ -1,29 +1,47 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CalendarIcon, TrendingUpIcon, AlertCircle, DollarSign, PercentIcon, ScaleIcon, Share2, BookmarkPlus, Bell, Copy, ExternalLink } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  CalendarIcon,
+  TrendingUpIcon,
+  AlertCircle,
+  DollarSign,
+  PercentIcon,
+  ScaleIcon,
+  Share2,
+  BookmarkPlus,
+  Bell,
+  Copy,
+  ExternalLink,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { useState } from "react"
-import { toast } from "sonner"
+} from "@/components/ui/tooltip";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function ArbitrageCard({ game, stakes, onStakeChange }) {
-  const [isNotifyEnabled, setIsNotifyEnabled] = useState(false)
+  const [isNotifyEnabled, setIsNotifyEnabled] = useState(false);
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short'
+    return new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
     });
   };
 
@@ -43,13 +61,16 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
       ${game.home_team} vs ${game.away_team}
       ROI: ${game.arbitrageOpportunity.profitPercentage}%
       Best Odds:
-      ${Object.entries(game.arbitrageOpportunity.bestOdds).map(([team, odds]) => 
-        `${team}: ${odds} (${game.arbitrageOpportunity.bestOddsSource[team]})`
-      ).join('\n')}
-    `.trim()
-    navigator.clipboard.writeText(betDetails)
-    toast.success("Bet details copied to clipboard")
-  }
+      ${Object.entries(game.arbitrageOpportunity.bestOdds)
+        .map(
+          ([team, odds]) =>
+            `${team}: ${odds} (${game.arbitrageOpportunity.bestOddsSource[team]})`
+        )
+        .join("\n")}
+    `.trim();
+    navigator.clipboard.writeText(betDetails);
+    toast.success("Bet details copied to clipboard");
+  };
 
   return (
     <Card className="hover:shadow-xl transition-all duration-300">
@@ -72,27 +93,37 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={handleCopyBetDetails}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCopyBetDetails}
+                  >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Copy bet details</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="icon"
                     onClick={() => setIsNotifyEnabled(!isNotifyEnabled)}
                   >
-                    <Bell className={`w-4 h-4 ${isNotifyEnabled ? 'text-primary' : ''}`} />
+                    <Bell
+                      className={`w-4 h-4 ${
+                        isNotifyEnabled ? "text-primary" : ""
+                      }`}
+                    />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isNotifyEnabled ? 'Disable notifications' : 'Get notified of odds changes'}
+                  {isNotifyEnabled
+                    ? "Disable notifications"
+                    : "Get notified of odds changes"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -110,10 +141,18 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
             <Tooltip>
               <TooltipTrigger>
                 <div className="text-right">
-                  <div className={`text-2xl font-bold ${Number(game.arbitrageOpportunity.profitPercentage) > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div
+                    className={`text-2xl font-bold ${
+                      Number(game.arbitrageOpportunity.profitPercentage) > 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     {game.arbitrageOpportunity.profitPercentage}%
                   </div>
-                  <div className="text-sm text-muted-foreground">Expected ROI</div>
+                  <div className="text-sm text-muted-foreground">
+                    Expected ROI
+                  </div>
                 </div>
               </TooltipTrigger>
               <TooltipContent>
@@ -140,11 +179,14 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
                   Market Efficiency
                 </span>
                 <span className="font-medium">
-                  {(game.arbitrageOpportunity.totalImpliedProbability * 100).toFixed(2)}%
+                  {(
+                    game.arbitrageOpportunity.totalImpliedProbability * 100
+                  ).toFixed(2)}
+                  %
                 </span>
               </div>
-              <Progress 
-                value={game.arbitrageOpportunity.totalImpliedProbability * 100} 
+              <Progress
+                value={game.arbitrageOpportunity.totalImpliedProbability * 100}
                 className="h-2"
               />
             </div>
@@ -155,28 +197,51 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
                 <TrendingUpIcon className="w-4 h-4" />
                 Best Available Odds:
               </div>
-              {Object.entries(game.arbitrageOpportunity.bestOdds).map(([team, odds]) => (
-                <div key={team} className="flex justify-between items-center text-sm bg-background p-2 rounded">
-                  <span>{team}</span>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="font-mono">
-                      {odds}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      via {game.arbitrageOpportunity.bestOddsSource[team]}
-                    </span>
+              {Object.entries(game.arbitrageOpportunity.bestOdds).map(
+                ([team, odds]) => (
+                  <div
+                    key={team}
+                    className="flex justify-between items-center text-sm bg-background p-2 rounded"
+                  >
+                    <span>{team}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-mono">
+                        {odds}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        via {game.arbitrageOpportunity.bestOddsSource[team]}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              )}
             </div>
 
             {/* Add Quick Actions */}
             <div className="flex gap-2 mb-4">
-              <Button variant="outline" className="flex-1" onClick={() => window.open(game.arbitrageOpportunity.bestOddsUrls?.home_team, '_blank')}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() =>
+                  window.open(
+                    game.arbitrageOpportunity.bestOddsUrls?.home_team,
+                    "_blank"
+                  )
+                }
+              >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Bet Home
               </Button>
-              <Button variant="outline" className="flex-1" onClick={() => window.open(game.arbitrageOpportunity.bestOddsUrls?.away_team, '_blank')}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() =>
+                  window.open(
+                    game.arbitrageOpportunity.bestOddsUrls?.away_team,
+                    "_blank"
+                  )
+                }
+              >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Bet Away
               </Button>
@@ -203,10 +268,10 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
                 <Input
                   type="number"
                   placeholder="Enter stake amount"
-                  value={stakes?.totalStake || ''}
+                  value={stakes?.totalStake || ""}
                   onChange={(e) => onStakeChange(e.target.value)}
                 />
-                <Button variant="outline" onClick={() => onStakeChange('100')}>
+                <Button variant="outline" onClick={() => onStakeChange("100")}>
                   $100
                 </Button>
               </div>
@@ -220,7 +285,10 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
                   Recommended Bet Distribution:
                 </div>
                 {Object.entries(stakes.bets).map(([team, amount]) => (
-                  <div key={team} className="flex justify-between items-center bg-background p-2 rounded">
+                  <div
+                    key={team}
+                    className="flex justify-between items-center bg-background p-2 rounded"
+                  >
                     <span className="text-sm">{team}</span>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">${amount}</span>
@@ -245,13 +313,24 @@ export function ArbitrageCard({ game, stakes, onStakeChange }) {
                   <div className="flex justify-between text-sm">
                     <span>Expected Return:</span>
                     <span className="font-medium text-green-600">
-                      ${(stakes.totalStake * (1 + Number(game.arbitrageOpportunity.profitPercentage) / 100)).toFixed(2)}
+                      $
+                      {(
+                        stakes.totalStake *
+                        (1 +
+                          Number(game.arbitrageOpportunity.profitPercentage) /
+                            100)
+                      ).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Profit:</span>
                     <span className="font-medium text-green-600">
-                      ${(stakes.totalStake * (Number(game.arbitrageOpportunity.profitPercentage) / 100)).toFixed(2)}
+                      $
+                      {(
+                        stakes.totalStake *
+                        (Number(game.arbitrageOpportunity.profitPercentage) /
+                          100)
+                      ).toFixed(2)}
                     </span>
                   </div>
                 </div>

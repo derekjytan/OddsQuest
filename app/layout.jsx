@@ -15,7 +15,8 @@ const geistMono = localFont({
 
 export const metadata = {
   title: "OddsQuest - Sports Betting Arbitrage Finder",
-  description: "Discover profitable sports betting arbitrage opportunities across multiple bookmakers in real-time.",
+  description:
+    "Discover profitable sports betting arbitrage opportunities across multiple bookmakers in real-time.",
 };
 
 export default function RootLayout({ children }) {
@@ -23,12 +24,12 @@ export default function RootLayout({ children }) {
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
-      >
-        {children}
-      </body>
-    </html>
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          suppressHydrationWarning
+        >
+          {children}
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

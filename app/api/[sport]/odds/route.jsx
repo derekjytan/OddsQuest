@@ -53,10 +53,11 @@ function detectArbitrageOpportunity(bookmakers) {
   const betPercentage = {};
   Object.keys(bestOdds).forEach((team, index) => {
     betPercentage[team] = (
-      (impliedProbabilities[index] / totalImpliedProbability) * 100
+      (impliedProbabilities[index] / totalImpliedProbability) *
+      100
     ).toFixed(2);
   });
-  
+
   return {
     hasArbitrage,
     profitPercentage,
@@ -70,21 +71,21 @@ function detectArbitrageOpportunity(bookmakers) {
 
 export async function GET(request, { params }) {
   try {
-    console.log('1. API Route - Starting GET request');
+    console.log("1. API Route - Starting GET request");
     const sport = params.sport;
 
-    console.log('2. Sport parameter:', sport);
+    console.log("2. Sport parameter:", sport);
     if (!sport) {
       return NextResponse.json(
         { error: "Invalid or missing 'sport' parameter" },
         { status: 400 }
       );
     }
-    
-    console.log('3. Getting cache data');
+
+    console.log("3. Getting cache data");
     const { data: oddsData, lastUpdate } = await getGlobalOddsCache();
 
-    console.log('4. Received cache data:', !!oddsData);
+    console.log("4. Received cache data:", !!oddsData);
     if (!oddsData) {
       return NextResponse.json(
         { error: "Failed to initialize cache" },
@@ -97,22 +98,19 @@ export async function GET(request, { params }) {
 
     // Filter games with bookmakers and add arbitrage calculations
     const gamesWithBookmakers = gameData
-      .filter(game => game.bookmakers.length > 0)
-      .map(game => ({
+      .filter((game) => game.bookmakers.length > 0)
+      .map((game) => ({
         ...game,
-        arbitrageOpportunity: detectArbitrageOpportunity(game.bookmakers)
+        arbitrageOpportunity: detectArbitrageOpportunity(game.bookmakers),
       }));
 
     return NextResponse.json({
       odds_data: gamesWithBookmakers,
       remaining_requests: remainingRequests,
-      last_update: lastUpdate
+      last_update: lastUpdate,
     });
   } catch (error) {
-    console.error('5. Error in API route:', error);
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    console.error("5. Error in API route:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

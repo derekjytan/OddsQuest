@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import useSWR, { SWRConfig } from "swr";
 import { createContext, useContext, useMemo } from "react";
 import { loadStripe } from "@stripe/stripe-js";
@@ -11,10 +11,10 @@ export const SubscriptionProvider = ({
   endpoint,
   stripePublishableKey,
 }) => {
-  const stripeClient = useMemo(() => loadStripe(stripePublishableKey), [
-    stripePublishableKey,
-    loadStripe,
-  ]);
+  const stripeClient = useMemo(
+    () => loadStripe(stripePublishableKey),
+    [stripePublishableKey, loadStripe]
+  );
   endpoint = endpoint || "/api/subscription";
   return (
     <StripeContext.Provider
@@ -42,7 +42,7 @@ export function useSubscription() {
   if (!data) {
     return {
       isLoaded: false,
-    } 
+    };
   }
 
   const { products, subscription } = data;
@@ -68,9 +68,7 @@ export function useSubscription() {
     window.location.href = session.url;
   };
 
-  const redirectToCustomerPortal = async (
-    args
-  ) => {
+  const redirectToCustomerPortal = async (args) => {
     args = args || {};
     if (!args.returnUrl) {
       args.returnUrl = window.location.href;
@@ -98,13 +96,7 @@ export function useSubscription() {
   };
 }
 
-export const Gate = ({
-  product,
-  negate,
-  feature,
-  unsubscribed,
-  children,
-}) => {
+export const Gate = ({ product, negate, feature, unsubscribed, children }) => {
   const { isLoaded, products, subscription } = useSubscription();
   const { user } = useUser();
 
@@ -120,11 +112,15 @@ export const Gate = ({
 
   let condition;
   if (unsubscribed) {
-    condition = subscription === null && user?.id !== "user_2nZlvQWCouO9uSEhyzf8X7wwrig";
+    condition =
+      subscription === null && user?.id !== "user_2nZlvQWCouO9uSEhyzf8X7wwrig";
   }
 
   if (product || feature) {
-    if (subscription === null && user?.id !== "user_2nZlvQWCouO9uSEhyzf8X7wwrig") {
+    if (
+      subscription === null &&
+      user?.id !== "user_2nZlvQWCouO9uSEhyzf8X7wwrig"
+    ) {
       return null;
     }
     condition = user?.id === "user_2nZlvQWCouO9uSEhyzf8X7wwrig";
@@ -151,9 +147,13 @@ export const Gate = ({
 };
 
 export const Subscribed = ({ children }) => {
-  return <Gate unsubscribed negate>{children}</Gate>
-}
+  return (
+    <Gate unsubscribed negate>
+      {children}
+    </Gate>
+  );
+};
 
 export const Unsubscribed = ({ children }) => {
-  return <Gate unsubscribed>{children}</Gate>
-}
+  return <Gate unsubscribed>{children}</Gate>;
+};
