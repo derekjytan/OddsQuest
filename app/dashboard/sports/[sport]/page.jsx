@@ -1,34 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ArbitrageCard } from "@/app/components/ArbitrageCard"
-// import { QuickFilters } from "@/components/QuickFilters"
+import { useParams } from 'next/navigation'
 
-// Function to get label and color based on fair odds
-function getFairOddsQuality(fairOdds) {
-  if (fairOdds >= 0.98) return { label: "Great", color: "text-green-600" };
-  if (fairOdds >= 0.95) return { label: "Average", color: "text-yellow-600" };
-  return { label: "Poor", color: "text-red-600" };
-}
-
-// Function to format the date and time
-function formatDateTime(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-}
-
-export default function Home() {
+export default function SportPage() {
   const [oddsData, setOddsData] = useState(null);
   const [error, setError] = useState(null);
   const [stakes, setStakes] = useState({});
-  const sport = "upcoming"
+  const params = useParams();
+  const sport = params.sport;
 
   useEffect(() => {
     fetch(`/api/${sport}/odds`)
@@ -37,12 +17,17 @@ export default function Home() {
         if (data.error) {
           throw new Error(data.error);
         }
-        // Store the odds data in the state 
-        setOddsData(data);
+        // Filter the odds data to only include games for the selected sport
+        const filteredData = {
+          ...data,
+          odds_data: data.odds_data.filter(game => game.sport_key.includes(sport))
+        };
+        setOddsData(filteredData);
+        
         // Initialize stakes object with empty values for each game
         const initialStakes = {};
-        Object.keys(data.odds_data).forEach(gameKey => {
-          initialStakes[gameKey] = {
+        filteredData.odds_data.forEach((game, index) => {
+          initialStakes[index] = {
             totalStake: '',
             bets: {}
           };
@@ -50,7 +35,7 @@ export default function Home() {
         setStakes(initialStakes);
       })
       .catch((err) => setError(err.message));
-  }, []);
+  }, [sport]);
 
   // Handle the total stake changes 
   const handleTotalStakeChange = (gameKey, value) => {
@@ -94,7 +79,6 @@ export default function Home() {
     <div className="flex min-h-screen">
       <div className="flex-1">
         <main className="p-8">
-          {/* <QuickFilters /> */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Object.entries(oddsData?.odds_data || {}).map(([gameKey, game]) => (
               <ArbitrageCard

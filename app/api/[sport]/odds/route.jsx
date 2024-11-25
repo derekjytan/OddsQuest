@@ -70,8 +70,10 @@ function detectArbitrageOpportunity(bookmakers) {
 
 export async function GET(request, { params }) {
   try {
-    const { sport } = params;
+    console.log('1. API Route - Starting GET request');
+    const sport = params.sport;
 
+    console.log('2. Sport parameter:', sport);
     if (!sport) {
       return NextResponse.json(
         { error: "Invalid or missing 'sport' parameter" },
@@ -79,9 +81,10 @@ export async function GET(request, { params }) {
       );
     }
     
-    // Get cache data and initialize if needed
+    console.log('3. Getting cache data');
     const { data: oddsData, lastUpdate } = await getGlobalOddsCache();
 
+    console.log('4. Received cache data:', !!oddsData);
     if (!oddsData) {
       return NextResponse.json(
         { error: "Failed to initialize cache" },
@@ -89,84 +92,26 @@ export async function GET(request, { params }) {
       );
     }
 
-    try {
-      const data = JSON.parse(oddsData);
-      const remainingRequests = data[data.length - 1].remaining_requests;
-      const gameData = data.slice(0, -1);
+    const remainingRequests = oddsData[oddsData.length - 1].remaining_requests;
+    const gameData = oddsData.slice(0, -1);
 
-      // If there are no bookmakers avaliable, the game is finished, so don't display it
-      const gamesWithBookmakers = gameData.filter((game) => {
-        return game.bookmakers.length > 0;
-      });
+    // Filter games with bookmakers and add arbitrage calculations
+    const gamesWithBookmakers = gameData
+      .filter(game => game.bookmakers.length > 0)
+      .map(game => ({
+        ...game,
+        arbitrageOpportunity: detectArbitrageOpportunity(game.bookmakers)
+      }));
 
-      // Track all bookmakers for missing bookmaker detection
-      const allBookmakers = new Set();
-      gamesWithBookmakers.forEach((game) => {
-        game.bookmakers.forEach((bookmaker) => {
-          allBookmakers.add(bookmaker.name);
-        });
-      });
-
-      const formattedData = {};
-      gamesWithBookmakers.forEach((game, index) => {
-        const gameKey = `Game ${index + 1}`;
-        const currentBookmakers = new Set(
-          game.bookmakers.map((bookmaker) => bookmaker.name)
-        );
-
-        // Calculate individual bookmaker arbitrage
-        const bookmakers = game.bookmakers.map((bookmaker) => {
-          const odds = Object.values(bookmaker.odds);
-          const arbitrageData = calculateSingleBookmakerArbitrage(odds);
-
-          return {
-            ...bookmaker,
-            arbitrage: {
-              ...arbitrageData,
-              betPercentageByTeam: Object.keys(bookmaker.odds).reduce(
-                (acc, team, index) => {
-                  acc[team] = arbitrageData.betPercentage[index];
-                  return acc;
-                },
-                {}
-              ),
-            },
-          };
-        });
-
-        // Calculate cross-bookmaker arbitrage
-        const arbitrageOpportunity = detectArbitrageOpportunity(
-          game.bookmakers
-        );
-
-        formattedData[gameKey] = {
-          away_team: game.away_team,
-          home_team: game.home_team,
-          commence_time: game.commence_time,
-          bookmakers,
-          arbitrageOpportunity,
-          missing_bookmakers: Array.from(allBookmakers).filter(
-            (bookmaker) => !currentBookmakers.has(bookmaker)
-          ),
-        };
-      });
-
-      return NextResponse.json({
-        odds_data: formattedData,
-        remaining_requests: remainingRequests,
-        last_update: lastUpdate,
-      });
-    } catch (parseError) {
-      console.error("JSON Parse Error:", parseError, "Data:", oddsData);
-      return NextResponse.json(
-        { error: "Invalid data format" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({
+      odds_data: gamesWithBookmakers,
+      remaining_requests: remainingRequests,
+      last_update: lastUpdate
+    });
   } catch (error) {
-    console.error("Error processing odds:", error);
+    console.error('5. Error in API route:', error);
     return NextResponse.json(
-      { error: "Failed to retrieve odds data" },
+      { error: error.message },
       { status: 500 }
     );
   }
